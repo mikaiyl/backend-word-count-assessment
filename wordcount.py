@@ -114,6 +114,7 @@ def main():
         print_words(filename)
     elif option == '--topcount':
         print_top(filename)
+    # this is new
     elif option == '--wc':
         word_count(filename)
     else:
