@@ -39,7 +39,8 @@ print_words() and print_top().
 
 """
 
-import sys,os,re
+import sys
+import operator
 
 # +++your code here+++
 # Define print_words(filename) and print_top(filename) functions.
@@ -50,32 +51,53 @@ import sys,os,re
 ###
 
 def read_file( file ):
-    file = open( file, 'r+' )
-    lines = file.readlines()
-    file.close()
-    lines = map( lambda x: x.replace( '\n', '' ), lines )
-    lines = map( lambda x: x.split(), lines )
-    return reduce( lambda x,y: x + y, lines )
+    blob = []
+    num_of_lines = 0
+    num_of_chars = 0
+    with open( file, 'r+' ) as file:
+        for line in file:
+            num_of_chars += len( line )
+            num_of_lines += 1
+            blob += line.split()
+    # I know this is bad but I wanted to make a
+    # option that acts like wc for fun and the other
+    # way I know how to do this is with a global
+    return [ blob, num_of_lines, num_of_chars ]
 
-def print_words( filename ):
-    words = read_file( filename )
-    print len( words )
+def get_word_count( words ):
+    return len( words )
+
+def print_words( file ):
+    [ words, lnum, cnum ] = read_file( file )
+    print get_word_count( words )
     return
 
 def print_top( filename ):
-    words = read_file( filename )
+    # get the words
+    [ words, lnum ] = read_file( filename )
+    # make sure they 
     words = map( lambda x: x.lower(), words )
-    count_list = []
+
+    count_list = {}
+    # Work through list one word at a time and find all instances
+    # Record the word and num of instances in the above dict
+    # 
     while len(words) > 0:
         word = words[0]
-        count_list.append( ( word, words.count( word ) ) )
+        count_list[ word ] = words.count( word )
         words = filter( lambda x: x != word, words )
-    count_list.sort( key=lambda x: x[1], reverse=True )
-    print count_list [:20]
-    return 
+    sort_array = sorted( count_list.items(), key=operator.itemgetter(1), reverse=True )[:20]
 
-def word_count( filename ):
-    pass
+    for [ word, n ] in sort_array:
+        print str(n).zfill(4) + '  ' + word
+    return
+
+# traditional wc function
+# *numOfLines* *numOfWords* *numOfChars* *filename*
+def word_count( file ):
+    [ words, lnum, cnum ] = read_file( file )
+    num_words = get_word_count( words )
+    print '  ' + str(lnum) + '  ' + str(num_words) + ' ' + str(cnum) + ' ' + sys.argv[2]
 
 # This basic command line argument parsing code is provided and
 # calls the print_words() and print_top() functions which you must define.
@@ -83,7 +105,7 @@ def word_count( filename ):
 
 def main():
     if len(sys.argv) != 3:
-        print 'usage: ./wordcount.py {--count | --topcount} file'
+        print 'usage: ./wordcount.py { --count | --topcount | --wc } file'
         sys.exit(1)
 
     option = sys.argv[1]
@@ -92,6 +114,8 @@ def main():
         print_words(filename)
     elif option == '--topcount':
         print_top(filename)
+    elif option == '--wc':
+        word_count(filename)
     else:
         print 'unknown option: ' + option
         sys.exit(1)
