@@ -69,12 +69,14 @@ def get_word_count( words ):
 
 def print_words( file ):
     [ words, lnum, cnum ] = read_file( file )
-    print get_word_count( words )
-    return
+    lower_words = sorted( map( lambda w: w.lower(), words ) )
+    for word in words:
+        print word + ": x" + str( lower_words.count( word.lower() ) )
+    return words
 
 def print_top( filename ):
     # get the words
-    [ words, lnum ] = read_file( filename )
+    [ words, lnum, cnum ] = read_file( filename )
     # make sure they 
     words = map( lambda x: x.lower(), words )
 
